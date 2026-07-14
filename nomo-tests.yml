@@ -1,0 +1,30 @@
+# Save as .github/workflows/nomo-tests.yml in your repo.
+# Runs the facade wiring tests on every push / PR. No device needed.
+name: nomo-tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:   # lets you run it by hand from the Actions tab
+
+jobs:
+  wiring:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install test deps
+        run: pip install pytest
+
+      - name: Syntax check the harness + facade
+        run: |
+          python -m py_compile nomo_systems.py
+          # If the systems block lives inside the harness instead, also do:
+          # python -m py_compile nomo_rejoin.py
+
+      - name: Run wiring tests
+        run: python -m pytest test_nomo_systems.py -q
